@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"       
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd">
+	
+	<!-- import jdbc template -->
+	<import resource="../../sso-plugin/sso-plugin-jdbctemplate.xml"/>
+	
+	<!-- import ntlm 
+	-->
+	<import resource="../../sso-plugin/sso-plugin-ntlm.xml"/>
+	
+	<!-- import registry  ,if choose db,, need db script init
+	<import resource="../../sso-plugin/sso-plugin-registry-db.xml"/>
+	<import resource="../../sso-plugin/sso-plugin-registry.xml"/>
+	-->
+	<import resource="../../sso-plugin/sso-plugin-registry.xml"/>
+	
+	<!-- import log plugin , need db script init 
+		<import resource="../../sso-plugin/sso-plugin-log.xml"/>
+		loginHandlers and loginImmediateHandlers config(place on the last handler):
+		<ref bean="dbLogLoginHandler"/>
+		logoutHandlers config(place on the last handler):
+		<ref bean="dbLogLogoutHandler"/>
+	-->
+
+	<!-- import authentication plugin -->
+	<import resource="../../sso-plugin/sso-plugin-jdbcauth.xml"/>
+	
+	<!-- import ssoconnector plugin 
+	<import resource="../../sso-plugin/sso-plugin-ssoconnector.xml"/>
+	-->
+    
+    <!-- single sign on config -->
+    <bean id="singleSignOnConfig" class="bingo.sso.core.SingleSignOnConfig">
+        <!-- ntlm:Window集成认证  default:Form验证-->
+        <property name="defaultAuthType" value="ntlm" />
+    </bean>
+    
+    <!-- public key 配置 -->
+    <util:map id="clientPublicKey">
+    	<entry key="clientId" value="${sso.ap.publicKey.clientId}"/>
+    </util:map>
+    
+    <util:list id="credentialsResolverMappers">      
+        <bean class="bingo.sso.api.authentication.CredentialsResolverMapper" 
+            p:singleSignOnTypes="desktop"
+            p:singleSignOnActionTypes="grantLoginTicket"
+            p:credentialsResolver-ref="assertionCredentialsResolver"/>  
+        <bean class="bingo.sso.api.authentication.CredentialsResolverMapper" 
+            p:singleSignOnTypes="desktop"
+            p:singleSignOnActionTypes="grantCredentialsTicket"
+            p:credentialsResolver-ref="authorizationCodeCredentialsResolver"/>  
+        <bean class="bingo.sso.api.authentication.CredentialsResolverMapper" 
+            p:singleSignOnTypes="desktop"
+            p:singleSignOnActionTypes="login,grantLoginTicket,refreshTicketGrantingTicket"
+            p:credentialsResolver-ref="appSpecifiedCredentialsResolver"/>
+        <bean class="bingo.sso.api.authentication.CredentialsResolverMapper" 
+            p:singleSignOnTypes="desktop,openId,serverLocal"
+            p:singleSignOnActionTypes="login"
+            p:credentialsResolver-ref="loginTicketCredentialsResolver"/>
+        <bean class="bingo.sso.api.authentication.CredentialsResolverMapper" 
+            p:singleSignOnTypes="desktop,openId,serverLocal"
+            p:singleSignOnActionTypes="login"
+            p:credentialsResolver-ref="loginFormCredentialsResolver"/>
+        <bean class="bingo.sso.api.authentication.CredentialsResolverMapper" 
+            p:singleSignOnTypes="desktop"
+            p:singleSignOnActionTypes="grantCredentialsTicket"
+            p:credentialsResolver-ref="loginFormCredentialsResolver"/>
+	</util:list>
+	<util:list id="authenticationHandlers">
+        <ref bean="jdbcAuthenticationHandler"/>
+        <ref bean="loginTicketAuthenticationHandler"/>
+        <ref bean="appSpecifiedSecretAuthenticationHandler"/>
+        <ref bean="authorizationCodeAuthenticationHandler"/>
+        <ref bean="assertionAuthenticationHandler"/>
+        <!--
+        <ref bean="ntlmAuthenticationHandler"/>
+        -->
+	</util:list>
+	
+	<!-- 实现 bingo.sso.server.cas.auth.IPrincipalValidator 接口 -->
+	<util:list id="principalValidators">
+	</util:list>
+	
+	<!-- 应用是否受权检查器，如果存在多个检查器，只要有一个检查通过，则有权限访问SSO -->
+	<util:list id="serverAuthCheckers">
+
+	</util:list>
+    
+	<!-- 登录流程的处理链配置 -->
+	<util:list id="loginHandlers">
+		<ref bean="ticketCookieRetrievingHandler"/>
+		<!--
+		<ref bean="ssoConnectorHandler"/>
+		-->
+		<ref bean="trustedCredentialsHandler"/>
+		<ref bean="validateCodeHandler"/>
+		<ref bean="credentialsLoginHandler"/>
+		<ref bean="authenticateLoginHandler"/>
+		<ref bean="getAppSpecifiedSecretLoginHandler"/>
+		<ref bean="ticketCookieWritingHandler"/>
+		<!-- do log 
+		<ref bean="dbLogLoginHandler"/>
+		-->
+	</util:list>
+	<util:list id="otherCredentialsLoginHandlers">
+	    <ref bean="windowsNTLMLoginHandler"/>
+	</util:list>
+	
+	<bean id="validateCodeHandler" class="bingo.sso.server.web.validate.ValidateCodeHandler">
+    </bean>
+	
+	<!-- 登录流程(不交互)的处理链配置 -->
+	<util:list id="loginImmediateHandlers">
+		<ref bean="ticketCookieRetrievingHandler"/>
+		<ref bean="trustedCredentialsHandler"/>
+		<ref bean="loginImmediateResponseHandler"/>
+		<!-- do log 
+		<ref bean="dbLogLoginHandler"/>
+		-->
+	</util:list>
+    
+	<!-- 注销流程的处理链配置 -->
+	<util:list id="logoutHandlers">
+		<!-- add your handlers here bofore logout from sso -->
+    
+		<ref bean="logoutWithCloseBrowserHandler"/>
+		<ref bean="ticketGrantingTicketDestroyHandler"/>
+		<ref bean="logoutHandler"/>
+        
+		<!-- add your handlers here after logout from sso -->
+        <!-- do log 
+		<ref bean="dbLogLogoutHandler"/>
+		-->
+	</util:list>
+	
+	
+	<util:list id="logoutUrls">
+	</util:list>
+</beans>

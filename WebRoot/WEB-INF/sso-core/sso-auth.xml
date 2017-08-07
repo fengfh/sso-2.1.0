@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"       
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd">
+	
+    <!-- form -->
+    <bean id="loginFormCredentialsResolver" class="bingo.sso.core.authentication.form.LoginFormCredentialsResolver"/>
+         
+    <!-- assertion -->
+    <bean id="assertionCredentialsResolver" class="bingo.sso.core.authentication.assertion.AssertionCredentialsResolver"/>
+    <bean id="assertionAuthenticationHandler" class="bingo.sso.core.authentication.assertion.AssertionAuthenticationHandler"
+    	  p:apPulicKey-ref="clientPublicKey" />		
+    
+    <!-- login ticket -->
+    <bean id="loginTicketCredentialsResolver" class="bingo.sso.core.authentication.loginticket.LoginTicketCredentialsResolver"/>
+    <bean id="loginTicketAuthenticationHandler" class="bingo.sso.core.authentication.loginticket.LoginTicketAuthenticationHandler"
+    	  p:centralTicketService-ref="centralTicketService" />
+    
+    <!-- AppSpecifiedSecret -->   
+    <bean id="appSpecifiedCredentialsResolver" class="bingo.sso.core.authentication.appspecifiedsecret.AppSpecifiedCredentialsResolver"/>
+    <bean id="appSpecifiedSecretAuthenticationHandler" class="bingo.sso.core.authentication.appspecifiedsecret.AppSpecifiedSecretAuthenticationHandler"
+    	  p:centralTicketService-ref="centralTicketService" />
+    
+    <!-- ticketGrantingTicket -->   
+    <bean id="ticketGrantingTicketCredentialsResolver" class="bingo.sso.core.authentication.ticketgrantingticket.TicketGrantingTicketCredentialsResolver"/>
+    <bean id="ticketGrantingTicketAuthenticationHandler" class="bingo.sso.core.authentication.ticketgrantingticket.TicketGrantingTicketAuthenticationHandler"
+    	  p:centralTicketService-ref="centralTicketService" />
+    
+    <!-- ticketGrantingTicket -->   
+    <bean id="authorizationCodeCredentialsResolver" class="bingo.sso.core.authentication.authorizationcode.AuthorizationCodeCredentialsResolver"/>
+    <bean id="authorizationCodeAuthenticationHandler" class="bingo.sso.core.authentication.authorizationcode.AuthorizationCodeAuthenticationHandler"
+    	  p:centralTicketService-ref="centralTicketService" />
+          
+</beans>

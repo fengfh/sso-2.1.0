@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"       
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd">
+	
+    <!-- i18n资源文件 -->
+    <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource"
+          p:basename="messages"/>
+    <!-- desktop sign on -->
+    <bean id="desktopSignOnServlet" class="bingo.sso.core.servlet.DesktopSignOnServlet"          
+          p:desktopSingleSignOnController-ref="desktopSingleSignOnController"/>
+    
+    <!-- server sign on -->
+    <bean id="serverSignOnServlet" class="bingo.sso.core.servlet.ServerSignOnServlet"          
+          p:webSingleSignOnController-ref="webSingleSignOnController"
+          p:logoutErrorPage="${sso.ui.viewpath}/error/logout_error.jsp"
+          p:logoutWithCloseBrowserPage="${sso.ui.viewpath}/error/logout_with_close_browser.jsp"/>
+          
+    <!-- openid sign on -->
+	<bean id="singleSignOnServlet" class="bingo.sso.openid.servlet.SingleSignOnServlet"          
+          p:service-ref="openIdServerManager"/>
+	
+	<!-- authorizationCodeAuthServlet -->
+	<bean id="authorizationCodeAuthServlet" class="bingo.sso.core.servlet.AuthorizationCodeAuthServlet"  
+	      p:webSingleSignOnController-ref="webSingleSignOnController"        
+          p:centralTicketService-ref="centralTicketService"/>
+	
+	<!-- appSpecifiedSecretIssueServlet -->
+	<bean id="appSpecifiedSecretIssueServlet" class="bingo.sso.core.servlet.AppSpecifiedSecretIssueServlet"  
+	      p:webSingleSignOnController-ref="webSingleSignOnController"        
+          p:centralTicketService-ref="centralTicketService"/>
+          
+    <!-- openid sign on -->
+	<bean id="memberServlet" class="bingo.sso.openid.servlet.MemberServlet"          
+          p:service-ref="openIdServerManager"/>
+          
+    <!-- ================ FILTER DEFINITIONS ================ -->
+	<bean id="oncePerRequestServiceFilter"
+		class="bingo.sso.openid.filter.OncePerRequestServiceFilter"
+		abstract="true">
+		<property name="service" ref="openIdServerManager" />
+	</bean>
+	<bean id="memberFilter"
+		class="bingo.sso.openid.filter.MemberFilter"
+		parent="oncePerRequestServiceFilter" />
+		
+	<!-- SecurityContextUtil -->
+    <bean id="securityContextUtil" class="bingo.sso.server.web.SecurityContextUtil"          
+          p:webSingleSignOnController-ref="webSingleSignOnController"
+          p:openIdIdentifierParser-ref="openIdIdentifierParser"/>
+</beans>

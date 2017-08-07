@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"       
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd">
+
+    <bean id="centralTicketService" class="bingo.sso.core.ticket.CentralTicketService"
+          p:authorizationCodeTicketRegistry-ref="authorizationCodeTicketRegistry"
+          p:authorizationCodeTicketExpirationPolicy-ref="authorizationCodeTicketExpirationPolicy"
+          p:ticketGrantingTicketRegistry-ref="ticketGrantingTicketRegistry"
+          p:ticketGrantingTicketExpirationPolicy-ref="ticketGrantingTicketExpirationPolicy"
+          p:serviceTicketRegistry-ref="serviceTicketRegistry"
+          p:serviceTicketExpirationPolicy-ref="serviceTicketExpirationPolicy"
+          p:loginTicketRegistry-ref="loginTicketRegistry"
+          p:loginTicketExpirationPolicy-ref="loginTicketExpirationPolicy"
+          p:credentialsTicketRegistry-ref="credentialsTicketRegistry"
+          p:credentialsTicketExpirationPolicy-ref="credentialsTicketExpirationPolicy"
+          p:uniqueTicketIdGenerator-ref="uniqueTicketIdGenerator"/>
+          
+          
+    <bean id="credentialsToPrincipalResolver" class="bingo.sso.core.authentication.PrincipalResolver">
+        <property name="resolvers">
+            <list>
+                <!-- add your CredentialsToPrincipalResolver here -->                
+            </list>
+        </property>
+    </bean>
+    
+    <bean id="singleSignOnCredentialsManager" class="bingo.sso.core.authentication.CredentialsManager"
+          p:credentialsResolverMappers-ref="credentialsResolverMappers" />
+    <bean id="singleSignOnAuthenticationManager" class="bingo.sso.core.authentication.AuthenticationManager"
+          p:authenticationHandlers-ref="authenticationHandlers"
+          p:principalValidators-ref="principalValidators">
+        <property name="credentialsToPrincipalResolvers">
+            <list>
+                <ref bean="credentialsToPrincipalResolver"/>
+            </list>
+        </property>
+        <property name="trustedAuthenticationHandler">
+            <bean class="bingo.sso.core.authentication.TrustedAuthenticationHandler"/>
+        </property>
+    </bean>
+    
+    <!-- <bean id="credentialsTicketCredentialsManager" class="bingo.sso.core.authentication.CredentialsManager"
+          p:credentialsHandlers-ref="credentialsTicketCredentialsHandlers" />
+    <bean id="credentialsTicketAuthenticationManager" class="bingo.sso.core.authentication.AuthenticationManager"
+          p:authenticationHandlers-ref="credentialsTicketAuthenticationHandlers"
+          p:principalValidators-ref="principalValidators">
+        <property name="credentialsToPrincipalResolvers">
+            <list>
+                <ref bean="credentialsToPrincipalResolver"/>
+            </list>
+        </property>
+        <property name="trustedAuthenticationHandler">
+            <bean class="bingo.sso.core.authentication.TrustedAuthenticationHandler"/>
+        </property>
+    </bean>
+    
+    <bean id="loginTicketCredentialsManager" class="bingo.sso.core.authentication.CredentialsManager"
+          p:credentialsHandlers-ref="loginTicketCredentialsHandlers" />
+    <bean id="loginTicketAuthenticationManager" class="bingo.sso.core.authentication.AuthenticationManager"
+          p:authenticationHandlers-ref="loginTicketAuthenticationHandlers"
+          p:principalValidators-ref="principalValidators">
+        <property name="credentialsToPrincipalResolvers">
+            <list>
+                <ref bean="credentialsToPrincipalResolver"/>
+            </list>
+        </property>
+        <property name="trustedAuthenticationHandler">
+            <bean class="bingo.sso.core.authentication.TrustedAuthenticationHandler"/>
+        </property>
+    </bean>
+    
+    <bean id="refreshTicketGrantingTicketCredentialsManager" class="bingo.sso.core.authentication.CredentialsManager"
+          p:credentialsHandlers-ref="refreshTicketGrantingTicketCredentialsHandlers" />
+    <bean id="refreshTicketGrantingTicketAuthenticationManager" class="bingo.sso.core.authentication.AuthenticationManager"
+          p:authenticationHandlers-ref="refreshTicketGrantingTicketAuthenticationHandlers"
+          p:principalValidators-ref="principalValidators">
+        <property name="credentialsToPrincipalResolvers">
+            <list>
+                <ref bean="credentialsToPrincipalResolver"/>
+            </list>
+        </property>
+        <property name="trustedAuthenticationHandler">
+            <bean class="bingo.sso.core.authentication.TrustedAuthenticationHandler"/>
+        </property>
+    </bean> -->
+
+    <!-- The scheduler bean wires up any triggers that define scheduled tasks -->
+    <bean id="scheduler" class="bingo.sso.core.utils.AutowiringSchedulerFactoryBean"/>
+</beans>
